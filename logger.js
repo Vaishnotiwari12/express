@@ -1,5 +1,6 @@
-const fs = require("fs");
-const os = require("os");
+import fs from "fs";
+import os from "os";
+
 
 const EventEmitter = require("events");
 
