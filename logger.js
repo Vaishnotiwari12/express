@@ -1,8 +1,6 @@
 import fs from "fs";
 import os from "os";
-
-
-const EventEmitter = require("events");
+import EventEmitter from "events";
 
 class Logger extends EventEmitter {
   log(message) {
