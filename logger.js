@@ -1,27 +1,24 @@
-import fs from "fs";
-import os from "os";
-import EventEmitter from "events";
+import { createLogger, format, transports } from "winston";
+const { combine, timestamp, json, colorize } = format;
 
-class Logger extends EventEmitter {
-  log(message) {
-    this.emit("message", { message });
-  }
-}
+// Custom format for console logging with colors
+const consoleLogFormat = format.combine(
+  format.colorize(),
+  format.printf(({ level, message, timestamp }) => {
+    return `${level}: ${message}`;
+  })
+);
 
-const logger = new Logger();
-const logFile = "./eventlog.txt";
+// Create a Winston logger
+const logger = createLogger({
+  level: "info",
+  format: combine(colorize(), timestamp(), json()),
+  transports: [
+    new transports.Console({
+      format: consoleLogFormat,
+    }),
+    new transports.File({ filename: "app.log" }),
+  ],
+});
 
-const logToFile = (event) => {
-  const logMessage = `${new Date().toISOString()} - ${event.message}\n`;
-  fs.appendFileSync(logFile, logMessage);
-};
-
-logger.on("message", logToFile);
-
-setInterval(() => {
-  const memoryUsage = (os.freemem() / os.totalmem()) * 100;
-  logger.log(`Current memory usage: ${memoryUsage.toFixed(2)}`);
-}, 3000);
-
-logger.log("Application Started");
-logger.log("Application event occured");
+export default logger;
